@@ -1,0 +1,33 @@
+* 05 - Wien-Bridge Oscillator
+* ----------------------------
+* R = 10k, C = 15.9n  ->  fosc = 1/(2*pi*R*C) = 1000.97 Hz
+* Amplifier: non-inverting, gain = 1 + R3/R4 = 3.2 (> 3 guarantees startup)
+* Amplitude stabilized by soft tanh saturation of the amplifier (+/-11 V rails)
+
+* series RC arm (output -> p)
+RS1 out m1 10k
+CS1 m1 p 15.9n
+* parallel RC arm (p -> ground)
+RP1 p 0 10k
+CP1 p 0 15.9n
+
+* gain-setting network
+R4 n 0 10k
+R3 out n 22k
+
+* saturating amplifier: v(oa) = 11 * tanh( A*(v+ - v-) / 11 ),  A = 1000
+* ROUT/COUT give the output a state variable so the transient solver can
+* integrate through the initial kick (tau = 10 ns << 1 ms period)
+BOP oa 0 V=11*tanh((v(p)-v(n))*1000/11)
+ROUT oa out 100
+COUT out 0 100p
+
+.ic v(p)=10m
+
+.control
+tran 2u 80m 0 10u uic
+wrdata wien_tran.txt v(out)
+quit
+.endc
+
+.end

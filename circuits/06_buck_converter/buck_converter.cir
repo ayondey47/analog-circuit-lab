@@ -1,0 +1,27 @@
+* 06 - Buck Converter (open-loop, non-synchronous)
+* -------------------------------------------------
+* Vin = 12 V, D = 0.5, fsw = 100 kHz, L = 100 uH, C = 100 uF (ESR 50 mOhm), R = 6 Ohm
+* Ideal output:  Vout = D * Vin = 6 V (freewheel diode drop pulls it slightly lower)
+* Inductor ripple: dIL = (Vin - Vout) * D / (fsw * L) ~ 0.3 A pk-pk  (CCM, IL ~ 1 A)
+* Output ripple:  ~ dIL * ESR + dIL / (8 * fsw * C)  ~ 19 mV pk-pk
+
+VIN vin 0 DC 12
+VPWM ctrl 0 PULSE(0 5 0 50n 50n 4.95u 10u)
+
+S1 vin sw ctrl 0 SMOD
+D1 0 sw DFAST
+L1 sw out 100u
+RESR out cint 50m
+C1 cint 0 100u
+RL out 0 6
+
+.model SMOD SW(RON=20m ROFF=1e6 VT=2.5 VH=0.5)
+.model DFAST D(IS=1e-8 RS=10m N=1.05 TT=20n CJO=100p)
+
+.control
+tran 100n 5m
+wrdata buck_tran.txt v(out) v(sw)
+quit
+.endc
+
+.end

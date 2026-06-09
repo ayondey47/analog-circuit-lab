@@ -1,0 +1,35 @@
+* 04 - MOSFET Differential Pair with Ideal Tail Current Source
+* -------------------------------------------------------------
+* ITAIL = 1 mA  ->  ID = 0.5 mA per side
+* Level-1 NMOS: KP = 200u, W/L = 100u/10u = 10
+*   gm = sqrt(2 * KP * (W/L) * ID) = 1.414 mS
+*   ro = 1 / (LAMBDA * ID) = 200 kOhm
+* Differential gain: Adm = gm * (RD || ro) = 13.47  (22.6 dB)
+
+VDD vdd 0 DC 12
+VSS vss 0 DC -12
+VG1 g1 0 DC 0 AC 0.5
+VG2 g2 0 DC 0 AC 0.5 180
+
+M1 d1 g1 s s MN W=100u L=10u
+M2 d2 g2 s s MN W=100u L=10u
+RD1 vdd d1 10k
+RD2 vdd d2 10k
+ITAIL s vss DC 1m
+
+* differential output probe
+EDIFF outd 0 d2 d1 1
+
+.model MN NMOS(LEVEL=1 VTO=1 KP=200u LAMBDA=0.01)
+
+.control
+op
+wrdata dp_bias.txt v(d1) v(d2) v(s)
+ac dec 50 100 100meg
+wrdata dp_ac.txt vdb(outd)
+dc vg1 -0.3 0.3 0.002
+wrdata dp_dc.txt v(d1) v(d2)
+quit
+.endc
+
+.end

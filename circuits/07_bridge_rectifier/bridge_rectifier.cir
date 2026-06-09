@@ -1,0 +1,26 @@
+* 07 - Full-Wave Bridge Rectifier with Capacitor Filter
+* -------------------------------------------------------
+* 12 Vrms, 60 Hz source (Vpk = 16.97 V), 1000 uF filter, 100 Ohm load
+* Vdc   ~ Vpk - 2*Vd - ripple/2  ~ 14.7 V
+* Ripple ~ Idc / (2 * f * C) = Vdc / (RL * 2 * 60 * 1000u) ~ 1.2 V pk-pk
+
+VAC ac1 ac2 SIN(0 16.97 60)
+
+D1 ac1 pos DBR
+D2 ac2 pos DBR
+D3 0 ac1 DBR
+D4 0 ac2 DBR
+
+C1 pos 0 1000u
+RL pos 0 100
+
+.model DBR D(IS=2e-9 RS=20m N=1.1 BV=100 CJO=50p TT=1u)
+
+.control
+tran 50u 300m
+let vsrc = v(ac1) - v(ac2)
+wrdata rect_tran.txt v(pos) vsrc
+quit
+.endc
+
+.end

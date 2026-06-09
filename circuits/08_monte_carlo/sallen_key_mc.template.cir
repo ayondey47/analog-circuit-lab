@@ -1,0 +1,25 @@
+* 08 - Sallen-Key Butterworth LPF - Monte Carlo sample (template)
+* ----------------------------------------------------------------
+* Component values are injected per-run by lab/montecarlo.py to model
+* real-world component tolerances. Nominal: R = 11.25k, C1 = 2n, C2 = 1n
+* Nominal cutoff: fc = 1 / (2*pi*sqrt(R1*R2*C1*C2)) = 10.004 kHz
+
+V1 in 0 DC 0 AC 1
+R1 in n1 {r1}
+R2 n1 n2 {r2}
+C1 n1 out {c1}
+C2 n2 0 {c2}
+
+XOP n2 out out opamp_ideal
+
+.subckt opamp_ideal inp inn out
+EGAIN out 0 inp inn 1e6
+.ends opamp_ideal
+
+.control
+ac dec 60 1k 100k
+wrdata mc_ac.txt vdb(out)
+quit
+.endc
+
+.end

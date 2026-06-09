@@ -1,0 +1,39 @@
+name: simulations
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install ngspice
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ngspice
+          ngspice --version | head -n 5
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - name: Verify physics (full test suite)
+        run: pytest -v
+
+      - name: Regenerate all plots and results
+        run: python scripts/run_all.py --mc-runs 150
+
+      - name: Upload generated artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: plots-and-results
+          path: |
+            docs/plots/*.png
+            docs/RESULTS.md

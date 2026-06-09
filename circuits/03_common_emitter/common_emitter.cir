@@ -1,0 +1,33 @@
+* 03 - BJT Common-Emitter Amplifier (voltage-divider bias, partially bypassed emitter)
+* -------------------------------------------------------------------------------------
+* VCC = 12 V, R1 = 47k, R2 = 10k, RC = 2.2k, RE = 100 + 460 (460 bypassed by CE)
+* Bias:  VB ~ 2.04 V, IE ~ 2.4 mA, VC ~ 6.7 V (mid-rail for max swing)
+* Gain:  Av ~ -(RC || ro) / (re + RE1)  with re = VT/IE ~ 10.7 ohm
+*        Av ~ -2088 / 110.7 ~ -18.9  (25.5 dB)
+
+VCC vcc 0 DC 12
+VIN src 0 DC 0 AC 1 SIN(0 5m 5k)
+RS  src in 50
+CIN in b 10u
+
+R1 vcc b 47k
+R2 b 0 10k
+Q1 c b e QNPN
+RC vcc c 2.2k
+RE1 e e2 100
+RE2 e2 0 460
+CE e2 0 100u
+
+.model QNPN NPN(IS=1e-14 BF=200 VAF=100 CJC=4p CJE=8p TF=0.4n RB=10)
+
+.control
+op
+wrdata ce_bias.txt v(c) v(b) v(e)
+ac dec 50 10 100meg
+wrdata ce_ac.txt vdb(c) vp(c)
+tran 1u 2m
+wrdata ce_tran.txt v(in) v(c)
+quit
+.endc
+
+.end

@@ -1,0 +1,28 @@
+* 02 - Sallen-Key 2nd-Order Butterworth Low-Pass Filter
+* ------------------------------------------------------
+* Unity-gain topology, equal resistors:
+*   R1 = R2 = 11.25 kOhm, C1 = 2 nF, C2 = 1 nF
+*   Q  = 0.5 * sqrt(C1/C2)            = 0.7071  (Butterworth)
+*   fc = 1 / (2*pi*R*sqrt(C1*C2))     = 10.004 kHz
+* Expected rolloff: -40 dB/decade above fc
+
+V1 in 0 DC 0 AC 1
+R1 in n1 11.25k
+R2 n1 n2 11.25k
+C1 n1 out 2n
+C2 n2 0 1n
+
+* Ideal op-amp as unity-gain buffer (non-inverting input n2)
+XOP n2 out out opamp_ideal
+
+.subckt opamp_ideal inp inn out
+EGAIN out 0 inp inn 1e6
+.ends opamp_ideal
+
+.control
+ac dec 100 100 10meg
+wrdata sallen_key_ac.txt vdb(out) vp(out)
+quit
+.endc
+
+.end

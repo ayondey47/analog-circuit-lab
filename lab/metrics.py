@@ -50,7 +50,8 @@ def _steady(t: np.ndarray, v: np.ndarray, t_start: float) -> tuple[np.ndarray, n
 def dc_average(t: np.ndarray, v: np.ndarray, t_start: float = 0.0) -> float:
     """Time-weighted average of v over the window after t_start."""
     ts, vs = _steady(t, v, t_start)
-    trapezoid = getattr(np, "trapezoid", np.trapz)
+    # np.trapz was removed in NumPy 2.0 in favor of np.trapezoid
+    trapezoid = getattr(np, "trapezoid", None) or np.trapz
     return float(trapezoid(vs, ts) / (ts[-1] - ts[0]))
 
 
